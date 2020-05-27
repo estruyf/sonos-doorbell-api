@@ -13,13 +13,16 @@ export class SonosService {
       console.log(device.Name, crntTrack, crntState, crntVolume);
     }
 
-    await officeSonos.setVolume(40);
-    await officeSonos.play(`http://${ip}:${port}/clips/doorbell.mp3`);
-    if (debug) {
-      console.log(`${device.Name}: Rang doorbell`);
+    // Do not run when television is playing on the speaker
+    if (!crntTrack.uri.startsWith(`x-sonos-htastream`)) {
+      await officeSonos.setVolume(40);
+      await officeSonos.play(`http://${ip}:${port}/clips/doorbell.mp3`);
+      if (debug) {
+        console.log(`${device.Name}: Rang doorbell`);
+      }
+      await officeSonos.setVolume(crntVolume);
     }
-
-    await officeSonos.setVolume(crntVolume);
+    
     if (crntTrack && 
         crntTrack.uri && 
         !crntTrack.uri.startsWith(`http://${ip}`) && // Don't play a local stream
